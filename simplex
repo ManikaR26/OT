@@ -1,0 +1,35 @@
+C = [1 -3 2]
+A = [3 -1 2 ; -2 4 0; -4 3 8; 12 2 3]
+b = [7;12;10;10]
+
+[m,n] = size(A)
+A = [A eye(m) b]
+cost = [C zeros(1,m+1)];
+BV = n+1:n+m
+
+while true
+    ZRow = cost(BV)*A - cost
+    if all(ZRow<=0)
+        disp("optimal")
+        break
+    end
+    [~, pvt_col] = max(ZRow(1:end-1))
+    col = A(:,pvt_col)
+    sol = A(:,end);
+    ratio = sol ./ col
+    ratio(col<=0) = inf;
+    [~, pvt_row] = min(ratio);
+    BV(pvt_row) = pvt_col;
+    A(pvt_row,:) = A(pvt_row,:)/A(pvt_row, pvt_col)
+    for i = 1:m
+        if i ~= pvt_row
+            A(i,:) = A(i,:) - A(i, pvt_col)* A(pvt_row,:)
+        end
+    end
+    ZRow = cost(BV)*A - cost
+end
+BFS = zeros(1, size(A,2))
+BFS(BV) = A(:,end);
+Z = sum(BFS.*cost)
+disp(BFS)
+disp(num2str(Z))

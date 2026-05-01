@@ -1,38 +1,23 @@
-clc;
-clear;
+clc;  clear;
 
-% Min f(x1, x2) = x1^2 + x2^2 + x1*x2
-% Starting point: x0 = (2, 2)
-% Learning rate alpha = 0.1
+f = @(x) x(1)^2 - x(1)*x(2) + x(2)^2
 
-% Define the objective function and its gradient as function handles.
-% Change f and grad_f to solve a different problem.
-f      = @(x) x(1)^2 + x(2)^2 + x(1)*x(2);
-grad_f = @(x) [2*x(1) + x(2);
-               2*x(2) + x(1)];
+grad = @(x) [ 2*x(1) - x(2); -x(1) + 2*x(2)]
 
-x = [2; 2];       % starting point (change as needed)
-alpha = 0.1;      % learning rate
-tol = 1e-5;
-max_iter = 1000;
-
-for k = 1:max_iter
-
-    % Gradient
-    grad = grad_f(x);
-
-    % Update
-    x_new = x - alpha * grad;
-
-    if norm(x_new - x) < tol
+H = [2 -1  ;-1  2 ];   % constant Hessian
+x = [1;0.5];
+tol = 0.05;
+maxiter = 10;
+fprintf('Iter\t   x1\t\t   x2\t\t   f(x)\n');
+for k = 1:maxiter
+      g = grad(x);
+    if norm(g) < tol
         break;
     end
-
-    x = x_new;
+    S = -g;
+    lambda = (S'*S) / (S'*H*S);
+    x = x + lambda * S;
+    fprintf('%d\t %f\t %f\t %f\n', k, x(1), x(2), f(x));
 end
-
-disp('Optimal point:');
-disp(x);
-
-disp('Minimum value:');
-disp(f(x));
+fprintf('\nOptimal solution: x = (%f, %f)\n', x(1), x(2));
+fprintf('Minimum value: f(x) = %f\n', f(x));
